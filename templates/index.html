@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Calculadora Flask</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f6fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 60px;
+        }
+        .menu {
+            margin-bottom: 20px;
+        }
+        .menu a {
+            text-decoration: none;
+            color: white;
+            background-color: #0984e3;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 0 5px;
+        }
+        .menu a:hover {
+            background-color: #74b9ff;
+        }
+        form {
+            background-color: #fff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+            width: 280px;
+            text-align: center;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            font-size: 16px;
+        }
+        button {
+            background-color: #00b894;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #55efc4;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧮 Calculadora Flask</h1>
+
+    <div class="menu">
+        <a href="/sumar">Sumar</a>
+        <a href="/restar">Restar</a>
+        <a href="/multiplicar">Multiplicar</a>
+        <a href="/dividir">Dividir</a>
+    </div>
+
+    {% if operation %}
+        <h2>{{ operation }}</h2>
+        <form method="post">
+            <input type="number" name="num1" step="any" placeholder="Número 1" required>
+            <input type="number" name="num2" step="any" placeholder="Número 2" required>
+            <button type="submit">Calcular {{ operation }}</button>
+        </form>
+    {% endif %}
+
+    {% if result is not none %}
+        <div class="result">
+            <strong>Resultado:</strong> {{ result }}
+        </div>
+    {% endif %}
+</body>
+</html>
