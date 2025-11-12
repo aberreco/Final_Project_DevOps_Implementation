@@ -1,0 +1,49 @@
+name: Test Self-Hosted Runner
+
+#force refresh
+
+on:
+  workflow_dispatch:
+ 
+jobs:
+  test:
+    name: Test Runner & Cluster Access
+    runs-on: self-hosted
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - name: Usar Git Bash
+        shell: cmd
+        run: |
+          "C:\Program Files\Git\bin\bash.exe" -c "echo 'Hello from Git Bash'"
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Check runner environment
+        run: |
+          echo "🖥️ Información del runner:"
+          echo "Hostname: $(hostname)"
+          echo "OS: $(uname -s)"
+          echo "Directorio de trabajo: $(pwd)"
+      
+      - name: Verify kubectl access
+        run: |
+          echo "🔍 Verificando acceso a Kubernetes..."
+          kubectl version --client
+          kubectl config current-context
+      
+      - name: List Kubernetes namespaces
+        run: |
+          echo "📦 Namespaces de Kubernetes:"
+          kubectl get namespaces
+      
+      - name: Check our environments
+        run: |
+          echo "✅ Comprobando los entornos del laboratorio:"
+          kubectl get namespace dev staging prod
+      
+      - name: Success!
+        run: |
+          echo "🎉 ¡El runner funciona y tiene acceso al clúster!"
+

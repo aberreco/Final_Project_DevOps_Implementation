@@ -1,0 +1,107 @@
+---
+# Multi-Environment CI/CD Pipeline
+name: Multi-Environment CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - "apps/**"
+      - "environments/**"
+      - ".github/workflows/**"
+
+jobs:
+  # Job 1: Desplegar a Dev (automático)
+  deploy-dev:
+    name: "🚀 Deploy a Dev"
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: self-hosted
+    environment:
+      name: dev
+      url: http://dev.local
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Deploy to Dev
+        run: |
+          echo "🚀 Desplegando en el entorno dev..."
+          kubectl apply -k environments/dev
+
+      - name: Wait for rollout
+        run: |
+          echo "⏳ Esperando a que termine el despliegue..."
+          kubectl rollout status deployment/dev-webapp -n dev --timeout=5m
+
+      - name: Verify deployment
+        run: |
+          echo "✅ Verificando el despliegue..."
+          kubectl get pods -n dev -l app=webapp
+          kubectl get svc -n dev
+
+      - name: ✅ Dev deployment complete
+        run: echo "✅ ¡Despliegue en dev finalizado!"
+
+  # Job 2: Desplegar a Staging
+  deploy-staging:
+    name: "🚀 Deploy a Staging"
+    needs: deploy-dev
+    if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') && github.event_name == 'push'
+    runs-on: self-hosted
+    environment:
+      name: staging
+      url: http://staging.local
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Staging
+        run: |
+          echo "🚀 Desplegando en el entorno staging..."
+          kubectl apply -k environments/staging
+
+      - name: Wait for rollout
+        run: |
+          echo "⏳ Esperando a que termine el despliegue..."
+          kubectl rollout status deployment/staging-webapp -n staging
+
+      - name: Verify staging deployment
+        run: |
+          echo "✅ Verificando el despliegue..."
+          kubectl get pods -n staging -l app=webapp
+          kubectl get svc -n staging
+
+      - name: ✅ Staging deployment complete
+        run: echo "✅ ¡Despliegue staging finalizado!"
+
+  # Job 3: Desplegar a Producción
+  deploy-prod:
+    name: "🚀 Deploy a Producción"
+    needs: deploy-staging
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: self-hosted
+    environment:
+      name: production
+      url: http://prod.local
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Production
+        run: |
+          echo "🚀 Desplegando en el entorno de producción..."
+          kubectl apply -k environments/prod
+
+      - name: Wait for rollout
+        run: |
+          echo "⏳ Esperando a que termine el despliegue..."
+          kubectl rollout status deployment/prod-webapp -n prod --timeout=5m
+
+      - name: Verify production deployment
+        run: |
+          echo "✅ Verificando el despliegue..."
+          kubectl get pods -n prod -l app=webapp
+          kubectl get svc -n prod
+
+      - name: ✅ Production deployment complete
+        run: echo "✅ ¡Despliegue en producción finalizado!"
