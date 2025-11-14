@@ -69,17 +69,11 @@ Docker Compose
 
 Instrucciones de setup/ejecución o despliegue:
 
-
+`minikube start --driver=docker --cpus=4 --memory=4096`
 
 
 
 
 
 Pantallazos de los dashboards de monitoring y el porque de las métricas elegidas:
-
-
-
-
-
-
 
