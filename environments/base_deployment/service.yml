@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: calculadora-service
+  labels:
+    app: calculadora
+spec:
+  type: ClusterIP
+  selector:
+    app: calculadora
+  ports:
+    - name: http
+      port: 5000
+      targetPort: http
+      protocol: TCP

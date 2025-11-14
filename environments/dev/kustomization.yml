@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+namePrefix: dev-
+
+commonLabels:
+  environment: dev
+  team: platform
+
+resources:
+  - ../base_deployment
+
+configMapGenerator:
+  - name: calculadora-config
+    behavior: merge
+    literals:
+      - ENVIRONMENT=development
+      - VERSION=dev-latest
+      - LOG_LEVEL=debug
+      - FEATURE_FLAG_NEW_UI=true
+
+replicas:
+  - name: calculadora
+    count: 1
+
+images:
+  - name: python:3.11-slim
+    newTag: latest
