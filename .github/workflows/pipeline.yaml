@@ -65,7 +65,7 @@ jobs:
       - name: Run tests with coverage
         run: |
           echo "🧪 Running unit tests with coverage analysis..."
-          pytest unit_test -v --cov=app --cov-report=term --cov-report=xml --cov-report=html
+          pytest unit_test/ -v --cov=app --cov-report=term --cov-report=xml --cov-report=html
           echo "✅ Tests completed with coverage analysis!"
 
       - name: Check coverage threshold
