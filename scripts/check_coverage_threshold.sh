@@ -6,7 +6,7 @@ MIN_COVERAGE=${1:-80}   # default minimum coverage = 80%
 echo "🔍 Checking coverage threshold (minimum: ${MIN_COVERAGE}%)"
 
 # Run pytest with coverage and capture output
-COVERAGE_OUTPUT=$(pytest --cov=app --cov-report=term --quiet 2>&1 || true)
+COVERAGE_OUTPUT=$(PYTHONPATH=. pytest --cov=app --cov-report=term --quiet 2>&1 || true)
 
 echo "$COVERAGE_OUTPUT"
 
