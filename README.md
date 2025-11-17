@@ -70,7 +70,7 @@ Docker Compose
 Instrucciones de setup/ejecución o despliegue:
 
 `minikube start --driver=docker --cpus=4 --memory=4096`
-
+`kubectl port-forward svc/dev-calculadora-service 80:5000 -n dev`
 
 
 
