@@ -99,10 +99,26 @@ jobs:
           except:
               print('Could not parse coverage.xml')
           "
-  # Deployment job to deploy to dev environment
+
+  build-image:
+    name: Build & Load Docker Image
+    runs-on: self-hosted
+    needs: test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build Docker image
+        run: |
+            "/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe" build -t calculadora:latest .
+
+      - name: Load image into Minikube
+        run: |
+            "/mnt/c/minikube/minikube.exe" image load calculadora:latest
+
   deploy-dev:
     name: 🚀 Deploy a Dev
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: build-image
     runs-on: self-hosted
     environment:
       name: dev
@@ -110,28 +126,23 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
       - name: Set up kubectl
         run: |
           echo "⚙️ Configurando kubectl..."
           /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe create namespace dev --dry-run=client -o yaml | /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -f -
           /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe label namespace dev environment=dev --overwrite
-      
       - name: Deploy to Dev
         run: |
           echo "🚀 Desplegando en el entorno dev..."
           /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -k environments/dev
-        
       - name: Wait for rollout
         run: |
           echo "⏳ Esperando a que termine el despliegue..."
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe rollout status deployment/dev-webapp -n dev --timeout=5m
-      
+          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe rollout status deployment/dev-calculadora -n dev --timeout=2m
       - name: Verify deployment
         run: |
           echo "✅ Verificando el despliegue..."
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get pods -n dev -l app=webapp
+          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get pods -n dev -l app=calculadora
           /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get svc -n dev
-      
       - name: ✅ Dev deployment complete
         run: echo "✅ ¡Despliegue en dev finalizado!"
