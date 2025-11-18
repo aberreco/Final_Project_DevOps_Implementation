@@ -147,7 +147,7 @@ jobs:
       name: 🚀 Deploy to Staging (Minikube)
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       runs-on: self-hosted
-      needs: build-and-prepare
+      needs: deploy-dev
       environment:
         name: staging
         url: http://staging.local
