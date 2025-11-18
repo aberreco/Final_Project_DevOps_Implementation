@@ -11,6 +11,8 @@ commonLabels:
 
 resources:
   - ../base_deployment
+  - postgres-service.yaml
+  - postgres-statefulset.yaml
 
 configMapGenerator:
   - name: calculadora-config
@@ -28,3 +30,11 @@ replicas:
 images:
   - name: calculadora
     newTag: latest
+
+secretGenerator:
+  - name: calculadora-db-secret
+    literals:
+      - POSTGRES_USER=calc
+      - POSTGRES_PASSWORD=calc
+      - POSTGRES_DB=calculadora
+    behavior: create

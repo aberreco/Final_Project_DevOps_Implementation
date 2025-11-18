@@ -33,6 +33,25 @@ spec:
             configMapKeyRef:
               name: calculadora-config
               key: VERSION
+        - name: POSTGRES_HOST
+          value: calculadora-postgres
+        - name: POSTGRES_PORT
+          value: "5432"
+        - name: POSTGRES_DB
+          valueFrom:
+            secretKeyRef:
+              name: calculadora-db-secret
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: calculadora-db-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: calculadora-db-secret
+              key: POSTGRES_PASSWORD
         resources:
           requests:
             memory: "64Mi"
@@ -44,11 +63,11 @@ spec:
           httpGet:
             path: /
             port: 5000
-          initialDelaySeconds: 30
+          initialDelaySeconds: 10
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /
             port: 5000
-          initialDelaySeconds: 30
+          initialDelaySeconds: 5
           periodSeconds: 5

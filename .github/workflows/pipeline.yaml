@@ -99,50 +99,45 @@ jobs:
           except:
               print('Could not parse coverage.xml')
           "
-
-  build-image:
-    name: Build & Load Docker Image
+  # Build and deploy job to Minikube dev environment
+  build-and-prepare:
+    name: Build Docker Image & Prepare Cluster
     runs-on: self-hosted
     needs: test
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
       - name: Build Docker image
         run: |
-            "/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe" build -t calculadora:latest .
-
+          "/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe" build -t calculadora:latest .
       - name: Load image into Minikube
         run: |
-            "/mnt/c/minikube/minikube.exe" image load calculadora:latest
+          "/mnt/c/minikube/minikube.exe" image load calculadora:latest
 
+  # Deploy to dev environment in Minikube
   deploy-dev:
-    name: 🚀 Deploy a Dev
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: build-image
-    runs-on: self-hosted
-    environment:
-      name: dev
-      url: http://dev.local
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up kubectl
-        run: |
-          echo "⚙️ Configurando kubectl..."
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe create namespace dev --dry-run=client -o yaml | /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -f -
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe label namespace dev environment=dev --overwrite
-      - name: Deploy to Dev
-        run: |
-          echo "🚀 Desplegando en el entorno dev..."
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -k environments/dev
-      - name: Wait for rollout
-        run: |
-          echo "⏳ Esperando a que termine el despliegue..."
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe rollout status deployment/dev-calculadora -n dev --timeout=2m
-      - name: Verify deployment
-        run: |
-          echo "✅ Verificando el despliegue..."
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get pods -n dev -l app=calculadora
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get svc -n dev
-      - name: ✅ Dev deployment complete
-        run: echo "✅ ¡Despliegue en dev finalizado!"
+      name: 🚀 Deploy to Dev (Minikube)
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      runs-on: self-hosted
+      needs: build-and-prepare
+      environment:
+        name: dev
+        url: http://dev.local
+      steps:
+        - name: Prepare Kubernetes dev namespace
+          run: |
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe create namespace dev --dry-run=client -o yaml | /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -f -
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe label namespace dev environment=dev --overwrite
+        - uses: actions/checkout@v4
+        - name: Apply Kubernetes manifests
+          run: |
+            echo "🚀 Desplegando app + DB en Minikube..."
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -k environments/dev
+        - name: Wait for rollout
+          run: |
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe rollout status deployment/dev-calculadora -n dev --timeout=2m
+        - name: Verify deployment
+          run: |
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get pods -n dev
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get svc -n dev
+        - name: ✅ Dev deployment complete
+          run: echo "✅ ¡Despliegue en dev finalizado! App en Minikube con DB."
