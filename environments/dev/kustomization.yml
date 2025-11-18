@@ -26,5 +26,5 @@ replicas:
     count: 1
 
 images:
-  - name: python:3.11-slim
+  - name: calculadora
     newTag: latest
