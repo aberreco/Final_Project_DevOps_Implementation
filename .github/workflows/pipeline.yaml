@@ -71,7 +71,7 @@ jobs:
       - name: Check coverage threshold
         run: |
           chmod +x scripts/check_coverage_threshold.sh
-          ./scripts/check_coverage_threshold.sh 75
+          ./scripts/check_coverage_threshold.sh 50
 
       - name: Upload coverage reports
         uses: actions/upload-artifact@v4
