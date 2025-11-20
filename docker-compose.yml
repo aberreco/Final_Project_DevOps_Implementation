@@ -36,5 +36,40 @@ services:
       interval: 10s
       retries: 5
 
+  sonarqube_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    volumes:
+      - sonarqube_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sonar"]
+      interval: 10s
+      retries: 10
+
+  sonarqube:
+    image: sonarqube:community
+    depends_on:
+      sonarqube_db:
+        condition: service_healthy
+    environment:
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: sonar
+      SONAR_JDBC_URL: jdbc:postgresql://sonarqube_db:5432/sonar
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+
 volumes:
   calculadora_db:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_db:

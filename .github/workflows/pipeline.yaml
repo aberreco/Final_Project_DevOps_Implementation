@@ -185,13 +185,50 @@ jobs:
           echo "🛑 Deteniendo servicios y limpiando..."
           # /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe down
 
+  sonar:
+    name: SonarQube Analysis with Coverage 📈
+    runs-on: self-hosted
+    needs: integration-tests
+    env:
+      SONAR_PROJECT_KEY: devops-lab-1
+      SONAR_PROJECT_NAME: DevOps Lab Project
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_HOST_URL: http://localhost:9000
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download coverage reports
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-reports
+
+      - name: Run SonarQube Scan with Coverage
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: http://localhost:9000
+
+      - name: Wait & check SonarQube quality gate
+        run: |
+          chmod +x scripts/check_sonar_quality_gate.sh
+          ./scripts/check_sonar_quality_gate.sh devops-lab-1 180
+
+      - name: Display SonarQube metrics
+        if: always()
+        run: |
+          echo "🎯 SonarQube Analysis Complete!"
+          echo "================================"
+          echo "📊 Check your SonarQube dashboard at: $SONAR_HOST_URL"
+          echo "🔍 Project: $SONAR_PROJECT_KEY"
+          echo "📈 Coverage data has been integrated with code quality metrics"
 
   # Deploy to staging environment in Minikube
   deploy-staging:
       name: 🚀 Deploy to Staging (Minikube)
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       runs-on: self-hosted
-      needs: integration-tests
+      needs: sonar
       environment:
         name: staging
         url: http://staging.local
