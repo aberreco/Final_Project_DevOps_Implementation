@@ -72,7 +72,7 @@ Instrucciones de setup/ejecución o despliegue:
 `minikube start --driver=docker --cpus=4 --memory=4096`
 `kubectl port-forward svc/dev-calculadora-service 80:5000 -n dev`
 `kubectl port-forward svc/staging-calculadora-service 81:5000 -n staging`
-
+![CI Matrix](https://github.com/aberreco/Final_Project_DevOps_Implementation/actions/workflows/pipeline.yaml/badge.svg)
 
 
 Pantallazos de los dashboards de monitoring y el porque de las métricas elegidas:
