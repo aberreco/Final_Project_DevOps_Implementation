@@ -13,13 +13,6 @@ resources:
   - ../base_deployment
   - postgres-service.yaml
   - postgres-statefulset.yaml
-  - prometheus/deployment.yaml
-  - prometheus/service.yaml
-  - prometheus/configmap.yaml
-  - grafana/deployment.yaml
-  - grafana/service.yaml
-  - node-exporter/deployment.yaml
-  - node-exporter/service.yaml
 
 configMapGenerator:
   - name: calculadora-config
