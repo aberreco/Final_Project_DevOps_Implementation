@@ -101,14 +101,14 @@ jobs:
           "
   # Build and deploy job to Minikube dev environment
   build-and-prepare:
-    name: Build Docker Image & Prepare Cluster
+    name: ⚙️ Build Docker Image & Prepare Cluster
     runs-on: self-hosted
     needs: test
     steps:
       - uses: actions/checkout@v4
       - name: Build Docker image
         run: |
-          "/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe" build -t calculadora:latest .
+          "/mnt/c/Program Files/Docker/Docker/resources/bin/docker.exe" build --no-cache -t calculadora:latest .
       - name: Load image into Minikube
         run: |
           "/mnt/c/minikube/minikube.exe" image load calculadora:latest
@@ -142,12 +142,56 @@ jobs:
         - name: ✅ Dev deployment complete
           run: echo "✅ ¡Despliegue en dev finalizado! App en Minikube con DB."
 
+  # Integration tests job using Docker Compose
+  integration-tests:
+    name: 🧩 Run Integration Tests with Docker Compose
+    runs-on: self-hosted
+    needs: deploy-dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker images
+        run: |
+          echo "🔨 Reconstruyendo imágenes con la última versión del Dockerfile..."
+          /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe build --no-cache
+
+      - name: Start services with Docker Compose
+        run: |
+          echo "🚀 Levantando app y DB con Docker Compose..."
+          /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe up -d
+
+      - name: Wait for app health
+        run: |
+          echo "⏳ Esperando a que la app esté healthy..."
+          for i in {1..10}; do
+            STATUS=$(/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker.exe inspect --format='{{json .State.Health.Status}}' $(/mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe ps -q calculadora))
+            echo "Estado actual: $STATUS"
+            if [ "$STATUS" = "\"healthy\"" ]; then
+              echo "✅ App está healthy"
+              break
+            fi
+            sleep 5
+          done
+
+      - name: Run integration tests inside app container
+        run: |
+          echo "🧪 Ejecutando tests de integración contra la app y la DB..."
+          /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe exec calculadora pytest integration_test -v --disable-warnings
+
+      - name: Stop services
+        if: always()
+        run: |
+          echo "🛑 Deteniendo servicios y limpiando..."
+          # /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe down
+
+
   # Deploy to staging environment in Minikube
   deploy-staging:
       name: 🚀 Deploy to Staging (Minikube)
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       runs-on: self-hosted
-      needs: deploy-dev
+      needs: integration-tests
       environment:
         name: staging
         url: http://staging.local
@@ -163,7 +207,7 @@ jobs:
             /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -k environments/staging
         - name: Wait for rollout
           run: |
-            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe rollout status deployment/staging-calculadora -n staging --timeout=2m
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe rollout status deployment/staging-calculadora -n staging --timeout=1m
         - name: Verify deployment
           run: |
             /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get pods -n staging

@@ -18,10 +18,12 @@ COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY app.py .
 COPY templates/ templates/
+COPY integration_test/ integration_test/
 
 # Create non-root user for security
 RUN groupadd -r appuser && useradd -r -g appuser appuser

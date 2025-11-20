@@ -1,0 +1,40 @@
+version: "3.8"
+services:
+  # Postgres DB for the calculator app
+  calculadora_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: calc
+      POSTGRES_PASSWORD: calc
+      POSTGRES_DB: calculadora
+    volumes:
+      - calculadora_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U calc"]
+      interval: 10s
+      retries: 10
+
+  # Calculator application
+  calculadora:
+    build: .
+    depends_on:
+      calculadora_db:
+        condition: service_healthy
+    environment:
+      # SQLAlchemy-compatible URL
+      DATABASE_URL: postgresql://calc:calc@calculadora_db:5432/calculadora
+      POSTGRES_HOST: calculadora_db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: calculadora
+      POSTGRES_USER: calc
+      POSTGRES_PASSWORD: calc
+
+    ports:
+      - "5000:5000"  
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      interval: 10s
+      retries: 5
+
+volumes:
+  calculadora_db:
