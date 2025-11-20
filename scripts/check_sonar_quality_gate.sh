@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-SONAR_HOST_URL="${SONAR_HOST_URL:-http://localhost:9000}"
+SONAR_HOST_URL="${SONAR_HOST_URL:-http://localhost:9090}"
 SONAR_TOKEN="${SONAR_TOKEN:?SONAR_TOKEN must be set}"
 PROJECT_KEY="${1:-devops-lab}"
 TIMEOUT=${2:-120}   # seconds

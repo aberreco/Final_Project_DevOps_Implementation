@@ -193,7 +193,7 @@ jobs:
       SONAR_PROJECT_KEY: devops-lab-1
       SONAR_PROJECT_NAME: DevOps Lab Project
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SONAR_HOST_URL: http://localhost:9000
+      SONAR_HOST_URL: http://localhost:9090
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -207,7 +207,7 @@ jobs:
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: http://localhost:9000
+          SONAR_HOST_URL: http://localhost:9090
 
       - name: Wait & check SonarQube quality gate
         run: |
@@ -250,4 +250,33 @@ jobs:
             /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get pods -n staging
             /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get svc -n staging
         - name: ✅ Staging deployment complete
-          run: echo "✅ ¡Despliegue en staging finalizado! App en Minikube con DB."
+          run: echo "✅ ¡Despliegue en Staging finalizado! App en Minikube con DB."
+
+  # Deploy to prod environment in Minikube
+  deploy-prod:
+      name: 🚀 Deploy to production (Minikube)
+      if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      runs-on: self-hosted
+      needs: deploy-staging
+      environment:
+        name: prod
+        url: http://prod.local
+      steps:
+        - name: Prepare Kubernetes prod namespace
+          run: |
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe create namespace prod --dry-run=client -o yaml | /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -f -
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe label namespace prod environment=prod --overwrite
+        - uses: actions/checkout@v4
+        - name: Apply Kubernetes manifests
+          run: |
+            echo "🚀 Desplegando app + DB en Minikube..."
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe apply -k environments/prod
+        - name: Wait for rollout
+          run: |
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe rollout status deployment/prod-calculadora -n prod --timeout=2m
+        - name: Verify deployment
+          run: |
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get pods -n prod
+            /mnt/c/Program\ Files/Docker/Docker/resources/bin/kubectl.exe get svc -n prod
+        - name: ✅ Prod deployment complete
+          run: echo "✅ ¡Despliegue en production finalizado! App en Minikube con DB."
