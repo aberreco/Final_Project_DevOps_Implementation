@@ -75,6 +75,15 @@ services:
       - "9100:9100"
     restart: unless-stopped
 
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    restart: unless-stopped
+
 volumes:
   calculadora_db:
   sonarqube_data:
