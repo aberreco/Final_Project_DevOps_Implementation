@@ -81,6 +81,9 @@ class CalculatorAppTestCase(unittest.TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertIn(b'Error: Ingresa n', resp.data)
 
+    def test_metrics(self):
+        resp = self.client.post("/custom-metrics")
+        self.assertEqual(resp.status_code, 200)
 
 if __name__ == '__main__':
     unittest.main()
