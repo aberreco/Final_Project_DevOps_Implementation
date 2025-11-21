@@ -6,7 +6,7 @@ Proyecto Final del curso DevOps IronHack
 
 
 
-Lista de Alumnos del equipo:
+### Lista de Alumnos del equipo:
 
 * Guillermo Castelao Martinez
 * Iria Martinez Cuervo
@@ -19,7 +19,7 @@ Lista de Alumnos del equipo:
 
 
 
-Resumen del proyecto y objetivos:
+### Resumen del proyecto y objetivos:
 
 Calculadora Flask con endpoint para cada operación. Integración con base de datos.
 
@@ -27,7 +27,7 @@ Calculadora Flask con endpoint para cada operación. Integración con base de da
 
 
 
-Descripción del workflow CI/CD
+### Descripción del workflow CI/CD
 
 Fase1: añadir comprobación linter y verificar métrica de linter
 
@@ -53,7 +53,7 @@ Fase10: añadir métricas de performance de host
 
 
 
-Herramientas y tecnologías usadas:
+### Herramientas y tecnologías usadas:
 
 GitHub actions con self-hosted (runners)
 
@@ -67,7 +67,7 @@ Docker Compose
 
 
 
-Instrucciones de setup/ejecución o despliegue:
+### Instrucciones de setup/ejecución o despliegue:
 
 `minikube start --driver=docker --cpus=4 --memory=4096`
 `kubectl port-forward svc/dev-calculadora-service 80:5000 -n dev`
@@ -75,5 +75,9 @@ Instrucciones de setup/ejecución o despliegue:
 ![CI Matrix](https://github.com/aberreco/Final_Project_DevOps_Implementation/actions/workflows/pipeline.yaml/badge.svg)
 
 
-Pantallazos de los dashboards de monitoring y el porque de las métricas elegidas:
-
+### Pantallazos de los dashboards de monitoring y el porque de las métricas elegidas:
+![ActionsGitHub](img\ActionsGitHub.png)
+![SonarQube_Metrics](img\SonarQube_Metrics.png)
+![SonarQube_Results](img\SonarQube_Results.png)
+![DockerDesktop](img\DockerDesktop.png)
+![GrafanaDashboard](img\GrafanaDashboard.png)
