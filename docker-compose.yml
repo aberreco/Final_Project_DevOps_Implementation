@@ -17,6 +17,7 @@ services:
   # Calculator application
   calculadora:
     build: .
+    hostname: calculadora.local
     depends_on:
       calculadora_db:
         condition: service_healthy
@@ -71,6 +72,7 @@ services:
   node_exporter:
     image: quay.io/prometheus/node-exporter:latest
     container_name: node-exporter
+    hostname: exporter.local
     ports:
       - "9100:9100"
     restart: unless-stopped
