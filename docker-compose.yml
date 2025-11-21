@@ -32,6 +32,8 @@ services:
 
     ports:
       - "5000:5000"  
+    networks:
+      - final_project
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:5000"]
       interval: 10s
@@ -61,6 +63,8 @@ services:
       SONAR_JDBC_URL: jdbc:postgresql://sonarqube_db:5432/sonar
     ports:
       - "9090:9000"
+    networks:
+      - final_project
     volumes:
       - sonarqube_data:/opt/sonarqube/data
       - sonarqube_extensions:/opt/sonarqube/extensions
@@ -75,6 +79,8 @@ services:
     hostname: exporter.local
     ports:
       - "9100:9100"
+    networks:
+      - final_project
     restart: unless-stopped
 
   prometheus:
@@ -100,3 +106,7 @@ volumes:
   sonarqube_data:
   sonarqube_extensions:
   sonarqube_db:
+
+networks:
+  final_project:
+    external: true
