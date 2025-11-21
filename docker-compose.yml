@@ -68,6 +68,13 @@ services:
         soft: 65536
         hard: 65536
 
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+    restart: unless-stopped
+
 volumes:
   calculadora_db:
   sonarqube_data:
