@@ -76,8 +76,8 @@ Docker Compose
 
 
 ### Pantallazos de los dashboards de monitoring y el porque de las métricas elegidas:
-![ActionsGitHub](img\ActionsGitHub.png)
-![SonarQube_Metrics](img\SonarQube_Metrics.png)
-![SonarQube_Results](img\SonarQube_Results.png)
-![DockerDesktop](img\DockerDesktop.png)
-![GrafanaDashboard](img\GrafanaDashboard.png)
+![ActionsGitHub](img/ActionsGitHub.png)
+![SonarQube_Metrics](img/SonarQube_Metrics.png)
+![SonarQube_Results](img/SonarQube_Results.png)
+![DockerDesktop](img/DockerDesktop.png)
+![GrafanaDashboard](img/GrafanaDashboard.png)
