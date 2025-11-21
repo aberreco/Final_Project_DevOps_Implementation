@@ -1,9 +1,8 @@
 import os
 import sqlite3
 import psycopg2
-from psycopg2.extras import RealDictCursor
 from datetime import datetime
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, Response
 
 # App setup
 app = Flask(__name__)
@@ -238,6 +237,37 @@ def dividir():
             success = False
         save_operation("division", num1, num2, result, success)
     return render_template("index.html", result=result, operation="División")
+
+@app.route('/custom-metrics', methods=["GET", "POST"])
+def custom_metrics():
+    # Custom metrics in Prometheus exposition format
+    #retrieve some metric data from the database as an example
+    sql_query = "SELECT COUNT(*) FROM operations;"
+    database_counter = 0
+
+    conn = None
+    cur = None
+    try:
+        if USE_POSTGRES:
+            conn = pg_connect()
+            cur = conn.cursor()
+            cur.execute(sql_query)
+            database_counter = cur.fetchone()[0]
+            cur.close()
+            conn.close()
+    finally:
+        try:
+            if cur:
+                cur.close()
+        except Exception:
+            pass
+
+    metrics_data = f"""
+    # HELP database_usage Number of operations made in the app.
+    # TYPE database_usage counter
+    database_usage {database_counter}
+    """
+    return Response(metrics_data, mimetype='text/plain')
 
 
 if __name__ == "__main__":
