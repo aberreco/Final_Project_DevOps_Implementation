@@ -159,7 +159,7 @@ jobs:
       - name: Start services with Docker Compose
         run: |
           echo "🚀 Levantando app y DB con Docker Compose..."
-          /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe up -d
+          /mnt/c/Program\ Files/Docker/Docker/resources/bin/docker-compose.exe up -d --force-recreate
 
       - name: Wait for app health
         run: |
