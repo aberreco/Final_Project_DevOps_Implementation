@@ -85,6 +85,13 @@ services:
       - "9091:9090"
     restart: unless-stopped
 
+  calculadora-grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
 volumes:
   calculadora_db:
   sonarqube_data:
